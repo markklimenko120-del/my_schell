@@ -15,4 +15,6 @@ struct exec_cmd
     char *args[MAXARGS];
 };
 
+void panic(char *s);
+
 #endif
