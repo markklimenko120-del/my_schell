@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -13,4 +14,3 @@ get_prompt(char *buf, size_t nbuf)
 
     return 0;
 }
-
