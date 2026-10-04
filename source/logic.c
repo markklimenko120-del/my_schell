@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+<<<<<<< HEAD
 #include <string.h>
+=======
+#include "logic.h"
+>>>>>>> ec5b5e4 (Add include logic.h in source/logic.c)
 
 void
 panic(const char *s)
