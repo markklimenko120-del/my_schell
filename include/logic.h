@@ -16,5 +16,6 @@ struct exec_cmd
 };
 
 void panic(char *s);
+struct cmd * create_exec_cmd(void);
 
 #endif
