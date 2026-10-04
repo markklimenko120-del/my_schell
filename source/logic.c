@@ -10,6 +10,29 @@ panic(const char *s)
     exit(1);
 }
 
+
+char *
+get_token(char **start_s)
+{
+    static char *s;
+    s = *start_s;
+    static char *ret;
+
+    
+    for (;;)
+    {
+        if (*s != ' ' && *s != '\t' && *s != 0)
+        {
+            s++;
+        } else {
+            ret = malloc(s - *start_s);
+            memcpy(ret, *start_s, s - *start_s);
+            *start_s = s + 1;
+            return ret;
+        }
+    }
+}
+
 struct cmd *
 create_exec_cmd(void) 
 {

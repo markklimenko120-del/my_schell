@@ -16,5 +16,6 @@ struct exec_cmd
 };
 
 void panic(const char *s);
-
+struct cmd * create_exec_cmd(void);
+char * get_token(char **start_s);
 #endif
