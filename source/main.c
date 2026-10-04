@@ -22,7 +22,7 @@ main(void)
             continue;
         }
 
-        if (buf[0] == 'e' && buf[1] == 'x' && buf[2] == 'i' && buf[3] == 't') 
+        if (cmd[0] == 'e' && cmd[1] == 'x' && cmd[2] == 'i' && cmd[3] == 't') 
         {
             exit(0);
         }
