@@ -1,15 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-<<<<<<< HEAD
 #include <string.h>
 #include "logic.h"
-=======
-<<<<<<< HEAD
-#include <string.h>
-=======
-#include "logic.h"
->>>>>>> ec5b5e4 (Add include logic.h in source/logic.c)
->>>>>>> aed079c791763e56ed69eb3c2fd2df7998123fc8
 
 void
 panic(const char *s)
@@ -19,7 +11,7 @@ panic(const char *s)
 }
 
 
-<<<<<<< HEAD
+
 char *
 get_token(char **start_s)
 {
@@ -51,15 +43,4 @@ create_exec_cmd(void)
     cmd->type = EXEC;
 
     return (struct cmd *)cmd;
-=======
-struct cmd *
-create_exec_cmd(void)
-{
-    struct exec_cmd *cmd;
-
-    cmd = malloc(sizeof(*cmd));
-    memset(cmd, 0, sizeof(*cmd));
-    cmd->type = EXEC
-    return (struct cmd *)cmd
->>>>>>> aed079c791763e56ed69eb3c2fd2df7998123fc8
 }

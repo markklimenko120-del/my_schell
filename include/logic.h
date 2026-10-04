@@ -15,17 +15,9 @@ struct exec_cmd
     char *args[MAXARGS];
 };
 
-<<<<<<< HEAD
+
 void panic(const char *s);
 struct cmd * create_exec_cmd(void);
 char * get_token(char **start_s);
-=======
-<<<<<<< HEAD
-void panic(char *s);
-struct cmd * create_exec_cmd(void);
-=======
-void panic(const char *s);
->>>>>>> ec5b5e4 (Add include logic.h in source/logic.c)
 
->>>>>>> aed079c791763e56ed69eb3c2fd2df7998123fc8
 #endif
