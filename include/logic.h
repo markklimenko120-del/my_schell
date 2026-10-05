@@ -20,6 +20,5 @@ void panic(const char *s);
 int shell_fork(void);
 struct cmd * create_exec_cmd(void);
 char * get_token(char **start_s);
-struct cmd * parse_exec_cmd(struct cmd *cmd, char *s);
 
 #endif

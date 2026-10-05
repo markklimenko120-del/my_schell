@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <strings.h>
+#include "logic.h"
 
 int 
 get_prompt(char *buf, size_t nbuf) 
@@ -13,4 +14,20 @@ get_prompt(char *buf, size_t nbuf)
     if (buf[0] == 0) {return -1;}
 
     return 0;
+}
+
+struct cmd *
+parse_exec_cmd(struct cmd *cmd, char *s) 
+{
+    struct exec_cmd *execcmd;
+    execcmd = (struct exec_cmd *)cmd;
+    int i;
+
+    for (i = 0; *s != 0; i++)
+    {
+        execcmd->args[i] = get_token(&s);    
+    }
+    execcmd->args[i+1] = NULL;
+
+    return cmd;
 }
