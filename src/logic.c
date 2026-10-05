@@ -35,6 +35,20 @@ get_token(char **start_s)
 }
 
 struct cmd *
+parse_exec(struct cmd *cmd, char *s) 
+{
+    struct exec_cmd *execcmd;
+    execcmd = (struct exec_cmd *)cmd;
+
+    for (int i = 0; *s != 0; i++)
+    {
+        execcmd->args[i] = get_token(&s);    
+    }
+
+    return cmd;
+}
+
+struct cmd *
 create_exec_cmd(void) 
 {
     struct exec_cmd *cmd;
