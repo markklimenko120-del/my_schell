@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "logic.h"
+
 
 void
 panic(const char *s)
@@ -10,6 +12,18 @@ panic(const char *s)
     exit(1);
 }
 
+int 
+shell_fork(void)
+{   
+    int pid;
+
+    if ((pid = fork()) == -1) 
+    {
+        panic("fork!");
+    }
+
+    return pid;
+}
 
 
 char *
@@ -18,11 +32,10 @@ get_token(char **start_s)
     static char *s;
     s = *start_s;
     static char *ret;
-
     
     for (;;)
     {
-        if (*s != ' ' && *s != '\t' && *s != 0)
+        if (*s != ' ' && *s != '\t' && *s != 0 && *s != '\n')
         {
             s++;
         } else {
@@ -35,15 +48,17 @@ get_token(char **start_s)
 }
 
 struct cmd *
-parse_exec(struct cmd *cmd, char *s) 
+parse_exec_cmd(struct cmd *cmd, char *s) 
 {
     struct exec_cmd *execcmd;
     execcmd = (struct exec_cmd *)cmd;
+    int i;
 
-    for (int i = 0; *s != 0; i++)
+    for (i = 0; *s != 0; i++)
     {
         execcmd->args[i] = get_token(&s);    
     }
+    execcmd->args[i+1] = NULL;
 
     return cmd;
 }
