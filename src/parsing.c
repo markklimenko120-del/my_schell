@@ -27,6 +27,10 @@ parse_exec_cmd(struct cmd *cmd, char *s)
     {
         execcmd->args[i] = get_token(&s);    
     }
+    if (i > MAXARGS) {
+        panic("too many args!");
+    }
+
     execcmd->args[i+1] = NULL;
 
     return cmd;
