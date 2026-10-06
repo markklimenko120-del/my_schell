@@ -6,6 +6,7 @@
 #include <string.h>
 #include "parsing.h"
 #include "logic.h"
+#include "commands.h"
 
 void
 runcmd(char *buf)
@@ -18,7 +19,7 @@ runcmd(char *buf)
     switch (cmd->type)
     {
         default:
-            panic("runcmd!");
+            shell_exit(1, "runcmd!");
             break;
         
         case EXEC:
@@ -27,7 +28,7 @@ runcmd(char *buf)
 
             if (execcmd->args[0] == 0)
             {
-                panic("non argumets!");
+                shell_exit(1, "non argumets!");
                 break;
             }
             execv(execcmd->args[0], execcmd->args);
@@ -43,14 +44,9 @@ main(void)
     static char buf[100];
     static size_t nbuf = sizeof(buf);
 
-    static char pwd_buf[100];
-    static size_t pwd_nbuf = sizeof(pwd_buf);
-
     while (get_prompt(buf, nbuf) >= 0)
     {
-        memset(pwd_buf, 0, pwd_nbuf);
         char *cmd = buf;
-        static int ret;
 
         while (*cmd == ' ' || *cmd == '\t')
         {
@@ -64,23 +60,17 @@ main(void)
 
         if (cmd[0] == 'e' && cmd[1] == 'x' && cmd[2] == 'i' && cmd[3] == 't' && (cmd[4] == ' ' || cmd[4] == '\n')) 
         {
-            exit(0);
+            shell_exit(0,"");
         }
 
         else if (cmd[0] == 'c' && cmd[1] == 'd' && (cmd[2] == ' ' || cmd[2] == '\n'))
         {
-            cmd[strlen(cmd) - 1] = 0;
-            ret = chdir(cmd + 3);
-            if (ret != 0)
-            {
-                perror("chdir!");
-            }
+            shell_cd(cmd);
         }
 
         else if (cmd[0] == 'p' && cmd[1] == 'w' && cmd[2] == 'd' && (cmd[3] == ' ' || cmd[3] == '\n'))
         {
-            getcwd(pwd_buf, pwd_nbuf);
-            printf("%s\n", pwd_buf);
+            shell_pwd();
         }
 
         else if (buf[0] != 0)

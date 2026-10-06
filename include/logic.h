@@ -2,7 +2,6 @@
 #define LOGIC_H
 
 #define EXEC 1
-#define SEMICOLON 2
 #define MAXARGS 10
 
 struct cmd 
@@ -22,8 +21,6 @@ struct semicolon_cmd
     struct semicolo_cmd *next_command;
 };
 
-
-void panic(const char *s);
 int shell_fork(void);
 struct cmd * create_exec_cmd(void);
 char * get_token(char **start_s);

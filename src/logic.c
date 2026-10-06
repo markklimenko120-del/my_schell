@@ -3,14 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "logic.h"
-
-
-void
-panic(const char *s)
-{
-    fprintf(stderr, "%s\n", s);
-    exit(1);
-}
+#include "commands.h"
 
 int 
 shell_fork(void)
@@ -19,7 +12,7 @@ shell_fork(void)
 
     if ((pid = fork()) == -1) 
     {
-        panic("fork!");
+        shell_exit(1, "fork!");
     }
 
     return pid;
@@ -54,17 +47,6 @@ create_exec_cmd(void)
     cmd = malloc(sizeof(*cmd));
     memset(cmd, 0, sizeof(*cmd));
     cmd->type = EXEC;
-
-    return (struct cmd *)cmd;
-}
-
-struct cmd *
-create_semicolon_cmd(void)
-{
-    struct semicolon_cmd *cmd;
-    cmd = malloc(sizeof(*cmd));
-    memset(cmd, 0, sizeof(*cmd));
-    cmd->type = SEMICOLON;
 
     return (struct cmd *)cmd;
 }

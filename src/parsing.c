@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <strings.h>
 #include "logic.h"
+#include "commands.h"
 
 int 
 get_prompt(char *buf, size_t nbuf) 
@@ -28,7 +29,7 @@ parse_exec_cmd(struct cmd *cmd, char *s)
         execcmd->args[i] = get_token(&s);    
     }
     if (i > MAXARGS) {
-        panic("too many args!");
+        shell_exit(1, "too many args!");
     }
 
     execcmd->args[i+1] = NULL;
