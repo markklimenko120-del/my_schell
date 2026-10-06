@@ -2,6 +2,7 @@
 #define LOGIC_H
 
 #define EXEC 1
+#define SEMICOLON 2
 #define MAXARGS 10
 
 struct cmd 
@@ -13,6 +14,12 @@ struct exec_cmd
 {
     int type;
     char *args[MAXARGS];
+};
+
+struct semicolon_cmd
+{
+    int type;
+    struct semicolo_cmd *next_command;
 };
 
 

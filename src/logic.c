@@ -57,3 +57,14 @@ create_exec_cmd(void)
 
     return (struct cmd *)cmd;
 }
+
+struct cmd *
+create_semicolon_cmd(void)
+{
+    struct semicolon_cmd *cmd;
+    cmd = malloc(sizeof(*cmd));
+    memset(cmd, 0, sizeof(*cmd));
+    cmd->type = SEMICOLON;
+
+    return (struct cmd *)cmd;
+}
