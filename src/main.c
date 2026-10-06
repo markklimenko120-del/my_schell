@@ -58,15 +58,15 @@ check_built_in_commads(char *cmd)
         shell_pwd();
         return 1;
     }
-    
+
     return 0;
 }
 
 int 
 main(void)
 {
-    static char buf[100];
-    static size_t nbuf = sizeof(buf);
+    char buf[100];
+    size_t nbuf = sizeof(buf);
 
     while (get_prompt(buf, nbuf) >= 0)
     {
@@ -87,12 +87,12 @@ main(void)
             continue;
         }
 
-        else if (buf[0] != 0)
+        else if (*cmd != 0)
         {
 
             if (shell_fork() == 0)
             {
-                runcmd(buf);
+                runcmd(cmd);
             }
             wait(0);
         }

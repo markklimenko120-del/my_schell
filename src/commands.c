@@ -29,8 +29,8 @@ shell_exit(int n, const char *error)
 void 
 shell_pwd(void)
 {
-    static char buf[50];
-    static size_t nbuf = sizeof(buf);
+    char buf[50];
+    size_t nbuf = sizeof(buf);
     memset(buf, 0, nbuf);
     getcwd(buf, nbuf);
     printf("%s\n", buf);

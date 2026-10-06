@@ -22,9 +22,9 @@ shell_fork(void)
 char *
 get_token(char **start_s)
 {
-    static char *s;
+    char *s;
     s = *start_s;
-    static char *ret;
+    char *ret;
     
     for (;;)
     {
