@@ -62,6 +62,15 @@ check_built_in_commads(char *cmd)
     return 0;
 }
 
+void 
+skip_spaces(char **cmd)
+{
+    while (**cmd == ' ' || **cmd == '\t')
+        {
+            (*cmd)++;
+        }
+}
+
 int 
 main(void)
 {
@@ -72,10 +81,7 @@ main(void)
     {
         char *cmd = buf;
 
-        while (*cmd == ' ' || *cmd == '\t')
-        {
-            cmd++;
-        }
+        skip_spaces(&cmd);
 
         if (*cmd == '\n')
         {

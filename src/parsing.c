@@ -37,13 +37,13 @@ parse_exec_cmd(struct cmd *cmd, char *s)
     return cmd;
 }
 
-int
+char *
 peek(const char *s, int c)
 {
     char *need_c;
     if ((need_c = strchr(s,c)) != NULL && *(need_c - 1) != '\\')
     {
-        return 1;
+        return need_c;
     }
-    return 0;
+    return NULL;
 }
