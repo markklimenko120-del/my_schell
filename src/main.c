@@ -38,39 +38,6 @@ runcmd(char *buf)
     exit(0);
 }
 
-int
-check_built_in_commads(char *cmd)
-{
-    if (cmd[0] == 'e' && cmd[1] == 'x' && cmd[2] == 'i' && cmd[3] == 't' && (cmd[4] == ' ' || cmd[4] == '\n')) 
-    {
-        shell_exit(0,"");
-        return 1;
-    }
-
-    else if (cmd[0] == 'c' && cmd[1] == 'd' && (cmd[2] == ' ' || cmd[2] == '\n'))
-    {
-        shell_cd(cmd);
-        return 1;
-    }
-
-    else if (cmd[0] == 'p' && cmd[1] == 'w' && cmd[2] == 'd' && (cmd[3] == ' ' || cmd[3] == '\n'))
-    {
-        shell_pwd();
-        return 1;
-    }
-
-    return 0;
-}
-
-void 
-skip_spaces(char **cmd)
-{
-    while (**cmd == ' ' || **cmd == '\t')
-        {
-            (*cmd)++;
-        }
-}
-
 int 
 main(void)
 {
@@ -88,7 +55,7 @@ main(void)
             continue;
         }
 
-        else if (check_built_in_commads(cmd))
+        else if (check_built_in_commands(cmd))
         {
             continue;
         }
