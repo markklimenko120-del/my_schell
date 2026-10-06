@@ -37,13 +37,63 @@ parse_exec_cmd(struct cmd *cmd, char *s)
     return cmd;
 }
 
-int
+char *
 peek(const char *s, int c)
 {
-    static char *need_c;
+    char *need_c;
     if ((need_c = strchr(s,c)) != NULL && *(need_c - 1) != '\\')
     {
+        return need_c;
+    }
+    return NULL;
+}
+
+int
+check_built_in_commands(char *cmd)
+{
+    if (cmd[0] == 'e' && cmd[1] == 'x' && cmd[2] == 'i' && cmd[3] == 't' && (cmd[4] == ' ' || cmd[4] == '\n')) 
+    {
+        shell_exit(0,"");
         return 1;
     }
+
+    else if (cmd[0] == 'c' && cmd[1] == 'd' && (cmd[2] == ' ' || cmd[2] == '\n'))
+    {
+        shell_cd(cmd);
+        return 1;
+    }
+
+    else if (cmd[0] == 'p' && cmd[1] == 'w' && cmd[2] == 'd' && (cmd[3] == ' ' || cmd[3] == '\n'))
+    {
+        shell_pwd();
+        return 1;
+    }
+
     return 0;
+}
+
+void 
+skip_spaces(char **cmd)
+{
+    while (**cmd == ' ' || **cmd == '\t')
+        {
+            (*cmd)++;
+        }
+}
+
+struct cmd *
+parse_command(char *buf)
+{
+    struct cmd *cmd;
+
+        if (peek(buf, ';'))
+        {
+            cmd = create_semicolon_cmd();
+        }
+        else 
+        {
+            cmd = create_exec_cmd();
+        }
+
+    return cmd;
 }

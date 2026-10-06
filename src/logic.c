@@ -22,9 +22,9 @@ shell_fork(void)
 char *
 get_token(char **start_s)
 {
-    static char *s;
+    char *s;
     s = *start_s;
-    static char *ret;
+    char *ret;
     
     for (;;)
     {
@@ -47,6 +47,17 @@ create_exec_cmd(void)
     cmd = malloc(sizeof(*cmd));
     memset(cmd, 0, sizeof(*cmd));
     cmd->type = EXEC;
+
+    return (struct cmd *)cmd;
+}
+
+struct cmd *
+create_semicolon_cmd(void)
+{
+    struct semicolon_cmd *cmd;
+    cmd = malloc(sizeof(*cmd));
+    memset(cmd, 0, sizeof(*cmd));
+    cmd->type = SEMICOLON;
 
     return (struct cmd *)cmd;
 }

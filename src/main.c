@@ -12,9 +12,8 @@ void
 runcmd(char *buf)
 {
     struct cmd *cmd;
-    cmd = create_exec_cmd();
-
     struct exec_cmd *execcmd;
+    cmd = parse_command(buf);
 
     switch (cmd->type)
     {
@@ -41,47 +40,33 @@ runcmd(char *buf)
 int 
 main(void)
 {
-    static char buf[100];
-    static size_t nbuf = sizeof(buf);
+    char buf[100];
+    size_t nbuf = sizeof(buf);
 
     while (get_prompt(buf, nbuf) >= 0)
     {
         char *cmd = buf;
 
-        while (*cmd == ' ' || *cmd == '\t')
-        {
-            cmd++;
-        }
+        skip_spaces(&cmd);
 
         if (*cmd == '\n')
         {
             continue;
         }
 
-        if (cmd[0] == 'e' && cmd[1] == 'x' && cmd[2] == 'i' && cmd[3] == 't' && (cmd[4] == ' ' || cmd[4] == '\n')) 
+        else if (check_built_in_commands(cmd))
         {
-            shell_exit(0,"");
+            continue;
         }
 
-        else if (cmd[0] == 'c' && cmd[1] == 'd' && (cmd[2] == ' ' || cmd[2] == '\n'))
+        else if (*cmd != 0)
         {
-            shell_cd(cmd);
-        }
 
-        else if (cmd[0] == 'p' && cmd[1] == 'w' && cmd[2] == 'd' && (cmd[3] == ' ' || cmd[3] == '\n'))
-        {
-            shell_pwd();
-        }
-
-        else if (buf[0] != 0)
-        {
             if (shell_fork() == 0)
             {
-                runcmd(buf);
+                runcmd(cmd);
             }
             wait(0);
-        } else {
-            continue;
         }
     }
     return 0;
