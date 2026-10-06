@@ -12,9 +12,8 @@ void
 runcmd(char *buf)
 {
     struct cmd *cmd;
-    cmd = create_exec_cmd();
-
     struct exec_cmd *execcmd;
+    cmd = parse_command(buf);
 
     switch (cmd->type)
     {

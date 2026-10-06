@@ -80,3 +80,20 @@ skip_spaces(char **cmd)
             (*cmd)++;
         }
 }
+
+struct cmd *
+parse_command(char *buf)
+{
+    struct cmd *cmd;
+
+        if (peek(buf, ';'))
+        {
+            cmd = create_semicolon_cmd();
+        }
+        else 
+        {
+            cmd = create_exec_cmd();
+        }
+
+    return cmd;
+}
