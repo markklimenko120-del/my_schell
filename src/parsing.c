@@ -1,10 +1,13 @@
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <strings.h>
 #include "logic.h"
 #include "commands.h"
+
+char * peek(const char *, int c);
 
 int 
 get_prompt(char *buf, size_t nbuf) 
@@ -33,6 +36,31 @@ parse_exec_cmd(struct cmd *cmd, char *s)
     }
 
     execcmd->args[i+1] = NULL;
+
+    return cmd;
+}
+
+struct cmd *
+parse_semicolon_cmd(struct cmd *cmd, char *s)
+{
+    struct cmd *next_cmd;
+    struct semicolon_cmd *semcmd;
+    char *semicolon;
+    semcmd = (struct semicolon_cmd *)cmd;
+
+    if ((semicolon = peek(s, ';')))
+    {
+        memcpy(semcmd->s, s, semicolon - s);
+        next_cmd = create_semicolon_cmd();
+        next_cmd = parse_semicolon_cmd(next_cmd, semicolon + 1);
+        semcmd->next_command = (struct semicolon_cmd *)next_cmd;
+    }
+    else 
+    {
+        memcpy(semcmd->s, s, strlen(s));
+        semcmd->s[strlen(s)] = '\0';
+        semcmd->next_command = NULL;
+    }
 
     return cmd;
 }

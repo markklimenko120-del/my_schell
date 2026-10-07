@@ -19,8 +19,8 @@ struct exec_cmd
 struct semicolon_cmd
 {
     int type;
-    char *s;
-    struct semicolo_cmd *next_command;
+    char s[50];
+    struct semicolon_cmd *next_command;
 };
 
 int shell_fork(void);
