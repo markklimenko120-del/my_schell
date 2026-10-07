@@ -19,7 +19,7 @@ struct exec_cmd
 struct semicolon_cmd
 {
     int type;
-    struct exec_cmd *execcmd;
+    char *s;
     struct semicolo_cmd *next_command;
 };
 
