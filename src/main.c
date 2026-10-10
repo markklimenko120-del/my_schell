@@ -9,6 +9,7 @@
 #include "commands.h"
 
 void shell_exec(struct cmd *cmd, char *s);
+void shell_semicolon(struct cmd *cmd, char *s);
 
 void
 runcmd(char *buf)
@@ -24,6 +25,10 @@ runcmd(char *buf)
         
         case EXEC:
             shell_exec(cmd, buf);
+            break;
+
+        case SEMICOLON:
+            shell_semicolon(cmd, buf);
             break;
     }
 
@@ -42,6 +47,24 @@ shell_exec(struct cmd *cmd, char *s)
         shell_exit(1, "non argumets!");
     }
     execv(execcmd->args[0], execcmd->args);
+}
+
+void
+shell_semicolon(struct cmd *cmd, char *s)
+{
+    struct semicolon_cmd *semcmd;
+    cmd = parse_semicolon_cmd(cmd, s);
+    semcmd = (struct semicolon_cmd *)cmd;
+
+    while (semcmd)
+    {
+        if (shell_fork() == 0)
+        {
+            shell_exec((struct cmd *)semcmd, semcmd->s);
+        }
+        wait(0);
+        semcmd = semcmd->next_command;
+    }
 }
 
 int 

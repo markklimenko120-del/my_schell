@@ -57,8 +57,8 @@ parse_semicolon_cmd(struct cmd *cmd, char *s)
     }
     else 
     {
-        memcpy(semcmd->s, s, strlen(s));
-        semcmd->s[strlen(s)] = '\0';
+        memcpy(semcmd->s, s, 50);
+        semcmd->s[strlen(s) + 1] = '\0';
         semcmd->next_command = NULL;
     }
 
@@ -118,6 +118,7 @@ parse_command(char *buf)
         {
             cmd = create_semicolon_cmd();
         }
+        
         else 
         {
             cmd = create_exec_cmd();
