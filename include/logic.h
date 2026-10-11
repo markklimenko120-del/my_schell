@@ -1,6 +1,7 @@
 #ifndef LOGIC_H
 #define LOGIC_H
 
+#define BUILT_IN 0
 #define EXEC 1
 #define SEMICOLON 2
 #define MAXARGS 10

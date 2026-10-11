@@ -86,10 +86,16 @@ parse_command(char *buf)
 {
     struct cmd *cmd;
 
-        if (peek(buf, ';'))
+        if (check_built_in_commands(buf))
+        {
+            return BUILT_IN; 
+        }
+
+        else if (peek(buf, ';'))
         {
             cmd = create_semicolon_cmd();
         }
+        
         else 
         {
             cmd = create_exec_cmd();

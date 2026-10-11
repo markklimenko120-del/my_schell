@@ -15,19 +15,27 @@ runcmd(char *buf)
 {
     struct cmd *cmd;
     cmd = parse_command(buf);
+    if (cmd == BUILT_IN)
+    {
+        return; /*It's built-in command*/
+    }
 
     switch (cmd->type)
     {
         default:
             shell_exit(1, "runcmd!");
             break;
-        
+
         case EXEC:
-            shell_exec(cmd, buf);
+            if (shell_fork() == 0)
+            {
+                shell_exec(cmd, buf);
+            }
+            wait(0);
             break;
     }
 
-    exit(0);
+    return;
 }
 
 void 
@@ -44,6 +52,7 @@ shell_exec(struct cmd *cmd, char *s)
     }
     execv(execcmd->args[0], execcmd->args);
     free(cmd);
+    shell_exit(0, "");
 }
 
 int 
@@ -63,19 +72,9 @@ main(void)
             continue;
         }
 
-        else if (check_built_in_commands(cmd))
-        {
-            continue;
-        }
-
         else if (*cmd != 0)
         {
-
-            if (shell_fork() == 0)
-            {
-                runcmd(cmd);
-            }
-            wait(0);
+            runcmd(cmd);
         }
     }
     return 0;
