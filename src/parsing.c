@@ -8,6 +8,7 @@
 #include "commands.h"
 
 char * peek(const char *s, int c);
+void skip_spaces(char **cmd);
 
 int 
 get_prompt(char *buf, size_t nbuf) 
@@ -26,11 +27,12 @@ parse_exec_cmd(struct cmd *cmd, char *s)
     struct exec_cmd *execcmd;
     execcmd = (struct exec_cmd *)cmd;
     int i;
+    char *s_stop = s + strlen(s);
     char *token;
 
-    for (i = 0; *s != 0; i++)
+    for (i = 0; s < s_stop; i++)
     {
-        if ((token = get_token(&s)))
+        if (*(token = get_token(&s)) != 0)
         {
             execcmd->args[i] = token;    
         }
@@ -83,7 +85,7 @@ peek(const char *s, int c)
 int
 check_built_in_commands(char *cmd)
 {
-    if (cmd[0] == 'e' && cmd[1] == 'x' && cmd[2] == 'i' && cmd[3] == 't' && (cmd[4] == ' ' || cmd[4] == '\n')) 
+    if (cmd[0] == 'e' && cmd[1] == 'x' && cmd[2] == 'i' && cmd[3] == 't' && (cmd[4] == ' ' || cmd[4] == '\n' || cmd[4] == '\0')) 
     {
         shell_exit(0,"");
         return 1;
@@ -91,11 +93,14 @@ check_built_in_commands(char *cmd)
 
     else if (cmd[0] == 'c' && cmd[1] == 'd' && (cmd[2] == ' ' || cmd[2] == '\n'))
     {
-        shell_cd(cmd);
+        cmd += 2;
+        skip_spaces(&cmd);
+        char *path = get_token(&cmd);
+        shell_cd(path);
         return 1;
     }
 
-    else if (cmd[0] == 'p' && cmd[1] == 'w' && cmd[2] == 'd' && (cmd[3] == ' ' || cmd[3] == '\n'))
+    else if (cmd[0] == 'p' && cmd[1] == 'w' && cmd[2] == 'd' && (cmd[3] == ' ' || cmd[3] == '\n' || cmd[3] == '\0'))
     {
         shell_pwd();
         return 1;
@@ -118,16 +123,18 @@ parse_command(char *buf)
 {
     struct cmd *cmd;
     skip_spaces(&buf);
-        if (check_built_in_commands(buf))
+
+
+        if (peek(buf, ';'))
+        {
+            cmd = create_semicolon_cmd();
+        }
+
+        else if (check_built_in_commands(buf))
         {
             return BUILT_IN; 
         }
 
-        else if (peek(buf, ';'))
-        {
-            cmd = create_semicolon_cmd();
-        }
-        
         else 
         {
             cmd = create_exec_cmd();

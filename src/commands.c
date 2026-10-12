@@ -7,8 +7,7 @@ void
 shell_cd(char *s)
 {
     int ret;
-    s[strlen(s) - 1] = 0;
-    ret = chdir(s + 3);
+    ret = chdir(s);
     if (ret != 0)
     {
         perror("chdir!");
