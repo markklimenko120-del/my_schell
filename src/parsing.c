@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,10 +26,14 @@ parse_exec_cmd(struct cmd *cmd, char *s)
     struct exec_cmd *execcmd;
     execcmd = (struct exec_cmd *)cmd;
     int i;
+    char *token;
 
     for (i = 0; *s != 0; i++)
     {
-        execcmd->args[i] = get_token(&s);    
+        if ((token = get_token(&s)))
+        {
+            execcmd->args[i] = token;    
+        }
     }
     if (i > MAXARGS) {
         shell_exit(1, "too many args!");
@@ -51,10 +56,10 @@ parse_semicolon_cmd(struct cmd *cmd, char *s)
     if ((semicolon = peek(start, ';')))
     {
         next_cmd = create_semicolon_cmd();
-        *semicolon = '\0';
         semcmd->command = start;
+        *semicolon = 0;
         start = semicolon + 1;
-        parse_semicolon_cmd(next_cmd, start );
+        parse_semicolon_cmd(next_cmd, start);
         semcmd->next_command = (struct semicolon_cmd *)next_cmd;
     }
     else  
@@ -102,7 +107,7 @@ check_built_in_commands(char *cmd)
 void 
 skip_spaces(char **cmd)
 {
-    while (**cmd == ' ' || **cmd == '\t')
+    while (isspace(**cmd))
         {
             (*cmd)++;
         }
@@ -112,7 +117,7 @@ struct cmd *
 parse_command(char *buf)
 {
     struct cmd *cmd;
-
+    skip_spaces(&buf);
         if (check_built_in_commands(buf))
         {
             return BUILT_IN; 

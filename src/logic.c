@@ -1,9 +1,10 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 #include "logic.h"
 #include "commands.h"
+#include "parsing.h"
 
 int 
 shell_fork(void)
@@ -26,18 +27,22 @@ get_token(char **start_s)
     s = *start_s;
     char *ret;
     
-    for (;;)
+    while(*s)
     {
-        if (*s != ' ' && *s != '\t' && *s != 0 && *s != '\n')
+        if (!isspace(*s))
         {
             s++;
-        } else {
+        }
+        else 
+        {
+            *s = '\0';
             ret = malloc(s - *start_s);
             memcpy(ret, *start_s, s - *start_s);
             *start_s = s + 1;
             return ret;
         }
     }
+    return NULL;
 }
 
 struct cmd *

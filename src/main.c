@@ -8,7 +8,8 @@
 #include "logic.h"
 #include "commands.h"
 
-void shell_exec(struct cmd *cmd, char *buf);
+void shell_exec(struct cmd *cmd, char *s);
+void shell_semicolon(struct cmd *cmd, char *s);
 
 void
 runcmd(char *buf)
@@ -33,6 +34,10 @@ runcmd(char *buf)
             }
             wait(0);
             break;
+
+        case SEMICOLON:
+            shell_semicolon(cmd, buf);
+            break;
     }
 
     return;
@@ -53,6 +58,18 @@ shell_exec(struct cmd *cmd, char *s)
     execv(execcmd->args[0], execcmd->args);
     free(cmd);
     shell_exit(0, "");
+}
+
+void 
+shell_semicolon(struct cmd *cmd, char *s)
+{
+    parse_semicolon_cmd(cmd, s);
+    struct semicolon_cmd *semcmd = (struct semicolon_cmd *)cmd;
+    for ( ; semcmd; semcmd = semcmd->next_command)
+    {
+        runcmd(semcmd->command);
+    }
+    free(cmd);
 }
 
 int 
