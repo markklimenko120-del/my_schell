@@ -1,3 +1,4 @@
+#include <endian.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -19,30 +20,19 @@ shell_fork(void)
     return pid;
 }
 
-
 char *
 get_token(char **start_s)
 {
     char *s;
     s = *start_s;
     char *ret;
-    
-    while(*s)
-    {
-        if (!isspace(*s))
-        {
-            s++;
-        }
-        else 
-        {
-            *s = '\0';
-            ret = malloc(s - *start_s);
-            memcpy(ret, *start_s, s - *start_s);
-            *start_s = s + 1;
-            return ret;
-        }
-    }
-    return NULL;
+
+    for (; !isspace(*s); s++) {}
+
+    *s = '\0';
+    ret = *start_s;
+    *start_s = s + 1;
+    return ret;
 }
 
 struct cmd *
