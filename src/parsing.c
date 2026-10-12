@@ -6,6 +6,8 @@
 #include "logic.h"
 #include "commands.h"
 
+char * peek(const char *s, int c);
+
 int 
 get_prompt(char *buf, size_t nbuf) 
 {
@@ -35,6 +37,31 @@ parse_exec_cmd(struct cmd *cmd, char *s)
     execcmd->args[i+1] = NULL;
 
     return cmd;
+}
+
+void
+parse_semicolon_cmd(struct cmd *cmd, char *s)
+{
+    struct cmd *next_cmd;
+    struct semicolon_cmd *semcmd = (struct semicolon_cmd *)cmd;
+    
+    char *start = s;
+    char *semicolon;
+
+    if ((semicolon = peek(start, ';')))
+    {
+        next_cmd = create_semicolon_cmd();
+        *semicolon = '\0';
+        semcmd->command = start;
+        start = semicolon + 1;
+        parse_semicolon_cmd(next_cmd, start );
+        semcmd->next_command = (struct semicolon_cmd *)next_cmd;
+    }
+    else  
+    {
+        semcmd->command = start;
+        semcmd->next_command = NULL; 
+    }
 }
 
 char *

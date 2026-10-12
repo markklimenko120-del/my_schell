@@ -7,7 +7,7 @@ enum commands {
     SEMICOLON = 2,
 };
 
-enum { MAXARGS = 10};
+enum { MAXARGS = 10 };
 struct cmd 
 {
     int type;
@@ -22,8 +22,8 @@ struct exec_cmd
 struct semicolon_cmd
 {
     int type;
-    struct exec_cmd *execcmd;
-    struct semicolo_cmd *next_command;
+    char *command;
+    struct semicolon_cmd *next_command;
 };
 
 int shell_fork(void);
