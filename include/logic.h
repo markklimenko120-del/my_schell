@@ -37,6 +37,7 @@ struct pipeline_cmd
 int shell_fork(void);
 struct cmd * create_exec_cmd(void);
 struct cmd * create_semicolon_cmd(void);
+struct cmd * create_pipeline_cmd(void);
 char * get_token(char **start_s);
 
 #endif

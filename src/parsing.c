@@ -130,6 +130,11 @@ parse_command(char *buf)
             cmd = create_semicolon_cmd();
         }
 
+        else if (peek(buf, '|'))
+        {
+            cmd = create_pipeline_cmd();
+        }
+
         else if (check_built_in_commands(buf))
         {
             return BUILT_IN; 
