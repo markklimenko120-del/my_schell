@@ -71,6 +71,20 @@ parse_semicolon_cmd(struct cmd *cmd, char *s)
     }
 }
 
+void
+parse_pipeline_cmd(struct cmd *cmd, char *s)
+{
+    struct pipeline_cmd *pipecmd = (struct pipeline_cmd *)cmd;
+    char *left, *right;
+    char *pipe = peek(s, '|');
+    left = s;
+    right = pipe + 1;
+    *pipe = '\0';
+
+    pipecmd->left = left;
+    pipecmd->right = right;
+}
+
 char *
 peek(const char *s, int c)
 {
