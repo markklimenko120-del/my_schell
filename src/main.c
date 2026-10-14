@@ -9,7 +9,7 @@
 #include "logic.h"
 #include "commands.h"
 
-void shell_exec(struct cmd *cmd);
+void shell_exec(struct cmd *cmd) __attribute__((noreturn));
 void shell_semicolon(struct cmd *cmd);
 void shell_pipeline(struct cmd *cmd);
 
@@ -55,7 +55,7 @@ shell_exec(struct cmd *cmd)
     execcmd = (struct exec_cmd *)cmd;
     if (execcmd->args[0] == 0 && execcmd->args[0][0] != '\0')
     {
-        return;
+        shell_exit(1, "exec");
     }
     execvp(execcmd->args[0], execcmd->args);
     shell_exit(0, "");

@@ -15,7 +15,7 @@ shell_cd(char *s)
 }
 
 void
-shell_exit(int n, const char *error)
+shell_exit(int n, const char *error) 
 {
     if (!n)
     {
