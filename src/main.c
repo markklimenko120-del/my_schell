@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
@@ -10,6 +11,7 @@
 
 void shell_exec(struct cmd *cmd);
 void shell_semicolon(struct cmd *cmd);
+void shell_pipeline(struct cmd *cmd);
 
 void
 runcmd(char *s)
@@ -29,6 +31,10 @@ runcmd(char *s)
                 shell_semicolon(cmd);
                 break;
         
+            case PIPE:
+                shell_pipeline(cmd);
+                break;
+
             case EXEC:
                 if (shell_fork() == 0)
                 {
@@ -64,6 +70,50 @@ shell_semicolon(struct cmd *cmd)
     {
         runcmd(semcmd->command);
     }
+}
+
+void
+shell_pipeline(struct cmd *cmd)
+{
+    struct pipeline_cmd *pipecmd = (struct pipeline_cmd *)cmd;
+    int fd[2];
+
+    if (pipe(fd) < 0)
+    {
+        shell_exit(1, "pipe");
+    }
+
+    if (shell_fork() == 0)
+    {
+        struct cmd *cmdl;
+        dup2(fd[1], 1);
+        close(fd[0]);
+        close(fd[1]);
+
+        if ((cmdl = parse_command(pipecmd->left)))
+        {
+            shell_exec(cmdl);
+        }
+    }
+
+    if (shell_fork() == 0)
+    {
+        struct cmd *cmdr;
+        dup2(fd[0], 0);
+        close(fd[0]);
+        close(fd[1]);
+
+        if ((cmdr = parse_command(pipecmd->right)))
+        {
+            shell_exec(cmdr);
+        }
+    }
+
+    close(fd[0]);
+    close(fd[1]);
+
+    wait(0);
+    wait(0);
 }
 
 int 

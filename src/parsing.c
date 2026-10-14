@@ -149,6 +149,7 @@ parse_command(char *buf)
         else if (peek(buf, '|'))
         {
             cmd = create_pipeline_cmd();
+            parse_pipeline_cmd(cmd, buf);
         }
 
         else if (check_built_in_commands(buf))
