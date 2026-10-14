@@ -59,8 +59,9 @@ parse_semicolon_cmd(struct cmd *cmd, char *s)
     {
         next_cmd = create_semicolon_cmd();
         semcmd->command = start;
-        *semicolon = 0;
+        *semicolon = '\0';
         start = semicolon + 1;
+        skip_spaces(&start);
         parse_semicolon_cmd(next_cmd, start);
         semcmd->next_command = (struct semicolon_cmd *)next_cmd;
     }
@@ -142,6 +143,7 @@ parse_command(char *buf)
         if (peek(buf, ';'))
         {
             cmd = create_semicolon_cmd();
+            parse_semicolon_cmd(cmd, buf);
         }
 
         else if (peek(buf, '|'))
@@ -157,6 +159,7 @@ parse_command(char *buf)
         else 
         {
             cmd = create_exec_cmd();
+            parse_exec_cmd(cmd, buf);
         }
 
     return cmd;
