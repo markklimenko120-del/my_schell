@@ -8,71 +8,61 @@
 #include "logic.h"
 #include "commands.h"
 
-void shell_exec(struct cmd *cmd, char *s, int *pid);
-void shell_semicolon(struct cmd *cmd, char *s);
+void shell_exec(struct cmd *cmd);
+void shell_semicolon(struct cmd *cmd);
 
-int
-runcmd(char *buf)
+void
+runcmd(char *s)
 {
-    int ret = 0;
     struct cmd *cmd;
-    cmd = parse_command(buf);
-    if (cmd == BUILT_IN)
+
+    if ((cmd = parse_command(s)) == BUILT_IN)
     {
-        return ret; /*It's built-in command*/
+        return;
     }
 
-    switch (cmd->type)
+    else
     {
-        default:
-            shell_exit(1, "runcmd!");
-            break;
-
-        case EXEC:
-            if (shell_fork() == 0)
-            {
-                shell_exec(cmd, buf, &ret);
-            }
-            wait(0);
-            break;
-
-        case SEMICOLON:
-            shell_semicolon(cmd, buf);
-            break;
+        switch (cmd->type)
+        {
+            case SEMICOLON:
+                shell_semicolon(cmd);
+                break;
+        
+            case EXEC:
+                if (shell_fork() == 0)
+                {
+                    shell_exec(cmd);
+                }
+                wait(0);
+                break;
+        }
     }
     free(cmd);
-    return ret;
 }
 
 void 
-shell_exec(struct cmd *cmd, char *s, int *pid)
+shell_exec(struct cmd *cmd)
 {
     struct exec_cmd *execcmd;
 
-    cmd = parse_exec_cmd(cmd, s);
     execcmd = (struct exec_cmd *)cmd;
     if (execcmd->args[0] == 0 && execcmd->args[0][0] != '\0')
     {
         return;
     }
-    *pid = execvp(execcmd->args[0], execcmd->args);
+    execvp(execcmd->args[0], execcmd->args);
     shell_exit(0, "");
 }
 
 void 
-shell_semicolon(struct cmd *cmd, char *s)
+shell_semicolon(struct cmd *cmd)
 {
-    int pid;
-    int status;
-    parse_semicolon_cmd(cmd, s);
     struct semicolon_cmd *semcmd = (struct semicolon_cmd *)cmd;
+
     for ( ; semcmd; semcmd = semcmd->next_command)
     {
-        pid = runcmd(semcmd->command);
-        if (pid)
-        {
-            waitpid(pid, &status, 0);
-        }
+        runcmd(semcmd->command);
     }
 }
 
@@ -84,18 +74,16 @@ main(void)
 
     while (get_prompt(buf, nbuf) >= 0)
     {
-        char *cmd = buf;
-
-        skip_spaces(&cmd);
-
-        if (*cmd == '\n')
+        char *c = buf;
+ 
+        if (*c == '\n')
         {
             continue;
         }
 
-        else if (*cmd != 0)
+        else if (*c != 0)
         {
-            runcmd(cmd);
+            runcmd(c);
         }
     }
     return 0;
