@@ -40,7 +40,7 @@ runcmd(char *buf)
             shell_semicolon(cmd, buf);
             break;
     }
-
+    free(cmd);
     return ret;
 }
 
@@ -56,7 +56,6 @@ shell_exec(struct cmd *cmd, char *s, int *pid)
         return;
     }
     *pid = execvp(execcmd->args[0], execcmd->args);
-    free(cmd);
     shell_exit(0, "");
 }
 
@@ -75,7 +74,6 @@ shell_semicolon(struct cmd *cmd, char *s)
             waitpid(pid, &status, 0);
         }
     }
-    free(cmd);
 }
 
 int 

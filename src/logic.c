@@ -1,5 +1,4 @@
 #include <endian.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -54,6 +53,17 @@ create_semicolon_cmd(void)
     cmd = malloc(sizeof(*cmd));
     memset(cmd, 0, sizeof(*cmd));
     cmd->type = SEMICOLON;
+
+    return (struct cmd *)cmd;
+}
+
+struct cmd *
+create_pipeline_cmd(void)
+{
+    struct pipeline_cmd *cmd;
+    cmd = malloc(sizeof(*cmd));
+    memset(cmd, 0, sizeof(*cmd));
+    cmd->type = PIPE;
 
     return (struct cmd *)cmd;
 }
