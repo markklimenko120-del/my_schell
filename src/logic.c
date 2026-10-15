@@ -20,6 +20,15 @@ shell_fork(void)
     return pid;
 }
 
+void
+shell_pipe(int *fd)
+{
+    if (pipe(fd) < 0)
+    {
+        shell_exit(1, "pipe");
+    }
+}
+
 char *
 get_token(char **start_s)
 {
@@ -46,6 +55,7 @@ create_exec_cmd(void)
     return (struct cmd *)cmd;
 }
 
+#ifdef OLD_PIPELINE
 struct cmd *
 create_semicolon_cmd(void)
 {
@@ -67,3 +77,15 @@ create_pipeline_cmd(void)
 
     return (struct cmd *)cmd;
 }
+#else
+struct cmd *
+create_chain_cmd(int type)
+{
+    struct chain_cmd *cmd;
+    cmd = malloc(sizeof(*cmd));
+    memset(cmd, 0, sizeof(*cmd));
+    cmd->type = type;
+
+    return (struct cmd *)cmd;
+}
+#endif

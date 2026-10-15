@@ -12,6 +12,7 @@
 void shell_exec(struct cmd *cmd) __attribute__((noreturn));
 void shell_semicolon(struct cmd *cmd);
 void shell_pipeline(struct cmd *cmd);
+void shell_pipe_child(int fd[2], int need_ds, char *command);
 
 void
 runcmd(char *s)
@@ -61,6 +62,7 @@ shell_exec(struct cmd *cmd)
     shell_exit(0, "");
 }
 
+#ifdef OLD_PIPELINE
 void 
 shell_semicolon(struct cmd *cmd)
 {
@@ -78,11 +80,7 @@ shell_pipeline(struct cmd *cmd)
     struct pipeline_cmd *pipecmd = (struct pipeline_cmd *)cmd;
     int fd[2];
 
-    if (pipe(fd) < 0)
-    {
-        shell_exit(1, "pipe");
-    }
-
+    shell_pipe(fd);
     if (shell_fork() == 0)
     {
         struct cmd *cmdl;
@@ -115,6 +113,58 @@ shell_pipeline(struct cmd *cmd)
     wait(0);
     wait(0);
 }
+#else
+void 
+shell_semicolon(struct cmd *cmd)
+{
+    struct chain_cmd *semcmd = (struct chain_cmd *)cmd;
+
+    for ( ; semcmd; semcmd = semcmd->next_command)
+    {
+        runcmd(semcmd->command);
+    }
+}
+
+void
+shell_pipeline(struct cmd *cmd)
+{
+    struct chain_cmd *pipecmd = (struct chain_cmd *)cmd;
+    int fd[2];
+    shell_pipe(fd);
+
+    if (shell_fork() == 0)
+    {
+        shell_pipe_child(fd, 1, pipecmd->command);
+    }
+    pipecmd = pipecmd->next_command;
+
+    if (shell_fork() == 0)
+    {
+        shell_pipe_child(fd, 0, pipecmd->command);
+    }
+
+    close(fd[0]);
+    close(fd[1]);
+
+    wait(0);
+    wait(0);
+}
+
+void
+shell_pipe_child(int fd[2], int need_fd, char *command)
+{
+    struct cmd *cmdr;
+    dup2(fd[need_fd], need_fd);
+    close(fd[0]);
+    close(fd[1]);
+
+    if ((cmdr = parse_command(command)))
+    {
+        shell_exec(cmdr);
+    }
+
+}
+#endif
 
 int 
 main(void)
