@@ -18,6 +18,8 @@ void
 runcmd(char *s)
 {
     struct cmd *cmd;
+    pid_t cpid;
+    int status;
 
     if ((cmd = parse_command(s)) == BUILT_IN)
     {
@@ -37,11 +39,11 @@ runcmd(char *s)
                 break;
 
             case EXEC:
-                if (shell_fork() == 0)
+                if ((cpid = shell_fork()) == 0)
                 {
                     shell_exec(cmd);
                 }
-                wait(0);
+                waitpid(cpid, &status, 0);
                 break;
         }
     }
