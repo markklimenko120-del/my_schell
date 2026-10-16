@@ -129,22 +129,25 @@ void
 shell_pipeline(struct cmd *cmd)
 {
     struct chain_cmd *pipecmd = (struct chain_cmd *)cmd;
-    int fd[2];
-    shell_pipe(fd);
+    int **fd = malloc(pipecmd->count_command * sizeof(int *));
+    fd[0] = malloc(sizeof(int) * 2);
+    shell_pipe(fd[0]);
 
     if (shell_fork() == 0)
     {
-        shell_pipe_child(fd, 1, pipecmd->command);
+        shell_pipe_child(fd[0], 1, pipecmd->command);
     }
     pipecmd = pipecmd->next_command;
 
     if (shell_fork() == 0)
     {
-        shell_pipe_child(fd, 0, pipecmd->command);
+        shell_pipe_child(fd[0], 0, pipecmd->command);
     }
 
-    close(fd[0]);
-    close(fd[1]);
+    close(fd[0][0]);
+    close(fd[0][1]);
+    free(fd[0]);
+    free(fd);
 
     wait(0);
     wait(0);

@@ -40,6 +40,7 @@ struct chain_cmd /*List and Pipeline*/
 {
     int type;
     char *command;
+    int count_command;
     struct chain_cmd *next_command;
 };
 #endif

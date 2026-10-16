@@ -117,6 +117,7 @@ parse_chain_cmd(struct cmd *cmd, char *s)
         skip_spaces(&start);
         parse_chain_cmd(next_cmd, start);
         chaincmd->next_command = (struct chain_cmd *)next_cmd;
+        chaincmd->count_command += 1 + chaincmd->next_command->count_command;
     }
     else  
     {
