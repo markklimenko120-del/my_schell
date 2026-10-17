@@ -64,58 +64,6 @@ shell_exec(struct cmd *cmd)
     shell_exit(0, "");
 }
 
-#ifdef OLD_PIPELINE
-void 
-shell_semicolon(struct cmd *cmd)
-{
-    struct semicolon_cmd *semcmd = (struct semicolon_cmd *)cmd;
-
-    for ( ; semcmd; semcmd = semcmd->next_command)
-    {
-        runcmd(semcmd->command);
-    }
-}
-
-void
-shell_pipeline(struct cmd *cmd)
-{
-    struct pipeline_cmd *pipecmd = (struct pipeline_cmd *)cmd;
-    int fd[2];
-
-    shell_pipe(fd);
-    if (shell_fork() == 0)
-    {
-        struct cmd *cmdl;
-        dup2(fd[1], 1);
-        close(fd[0]);
-        close(fd[1]);
-
-        if ((cmdl = parse_command(pipecmd->left)))
-        {
-            shell_exec(cmdl);
-        }
-    }
-
-    if (shell_fork() == 0)
-    {
-        struct cmd *cmdr;
-        dup2(fd[0], 0);
-        close(fd[0]);
-        close(fd[1]);
-
-        if ((cmdr = parse_command(pipecmd->right)))
-        {
-            shell_exec(cmdr);
-        }
-    }
-
-    close(fd[0]);
-    close(fd[1]);
-
-    wait(0);
-    wait(0);
-}
-#else
 void 
 shell_semicolon(struct cmd *cmd)
 {
@@ -214,7 +162,6 @@ shell_pipe_child(int fd[2], int ofd[2])
         }
     }
 }
-#endif
 
 int 
 main(void)

@@ -46,47 +46,7 @@ parse_exec_cmd(struct cmd *cmd, char *s)
     return cmd;
 }
 
-#ifdef OLD_PIPELINE
-void
-parse_semicolon_cmd(struct cmd *cmd, char *s)
-{
-    struct cmd *next_cmd;
-    struct semicolon_cmd *semcmd = (struct semicolon_cmd *)cmd;
-    
-    char *start = s;
-    char *semicolon;
 
-    if ((semicolon = peek(start, ';')))
-    {
-        next_cmd = create_semicolon_cmd();
-        semcmd->command = start;
-        *semicolon = '\0';
-        start = semicolon + 1;
-        skip_spaces(&start);
-        parse_semicolon_cmd(next_cmd, start);
-        semcmd->next_command = (struct semicolon_cmd *)next_cmd;
-    }
-    else  
-    {
-        semcmd->command = start;
-        semcmd->next_command = NULL; 
-    }
-}
-
-void
-parse_pipeline_cmd(struct cmd *cmd, char *s)
-{
-    struct pipeline_cmd *pipecmd = (struct pipeline_cmd *)cmd;
-    char *left, *right;
-    char *pipe = peek(s, '|');
-    left = s;
-    right = pipe + 1;
-    *pipe = '\0';
-
-    pipecmd->left = left;
-    pipecmd->right = right;
-}
-#else
 void
 parse_chain_cmd(struct cmd *cmd, char *s)
 {
@@ -126,7 +86,6 @@ parse_chain_cmd(struct cmd *cmd, char *s)
     }
 
 }
-#endif
 
 char *
 peek(const char *s, int c)
@@ -184,24 +143,14 @@ parse_command(char *buf)
 
         if (peek(buf, ';'))
         {
-            #ifdef OLD_PIPELINE
-            cmd = create_semicolon_cmd();
-            parse_semicolon_cmd(cmd, buf);
-            #else
             cmd = create_chain_cmd(SEMICOLON);
             parse_chain_cmd(cmd, buf);
-            #endif
         }
 
         else if (peek(buf, '|'))
         {
-            #ifdef OLD_PIPELINE
-            cmd = create_pipeline_cmd();
-            parse_pipeline_cmd(cmd, buf);
-            #else
             cmd = create_chain_cmd(PIPE);
             parse_chain_cmd(cmd, buf);
-            #endif
         }
 
         else if (check_built_in_commands(buf))
