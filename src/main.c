@@ -12,7 +12,7 @@
 void shell_exec(struct cmd *cmd) __attribute__((noreturn));
 void shell_semicolon(struct cmd *cmd);
 void shell_pipeline(struct cmd *cmd);
-void shell_pipe_child(int fd[2], int need_ds, char *command);
+void shell_pipe_child(int fd[2], int ofd[2], char *command);
 
 void
 runcmd(char *s)
@@ -137,13 +137,13 @@ shell_pipeline(struct cmd *cmd)
 
     if (shell_fork() == 0)
     {
-        shell_pipe_child(fd[0], 1, pipecmd->command);
+        shell_pipe_child(fd[0], NULL, pipecmd->command);
     }
     pipecmd = pipecmd->next_command;
 
     if (shell_fork() == 0)
     {
-        shell_pipe_child(fd[0], 0, pipecmd->command);
+        shell_pipe_child(NULL, fd[0], pipecmd->command);
     }
 
     close(fd[0][0]);
@@ -156,12 +156,32 @@ shell_pipeline(struct cmd *cmd)
 }
 
 void
-shell_pipe_child(int fd[2], int need_fd, char *command)
+shell_pipe_child(int fd[2], int ofd[2], char *command)
 {
     struct cmd *cmdr;
-    dup2(fd[need_fd], need_fd);
-    close(fd[0]);
-    close(fd[1]);
+    if (fd)
+    {
+        if (fd[1] != 1)
+        {
+            dup2(fd[1], 1);
+        }
+
+        close(fd[0]);
+        close(fd[1]);
+    }
+    if (ofd)
+    {
+        if (ofd[0] != 0)
+        {
+            dup2(ofd[0], 0); 
+        }
+
+        if (fd != ofd)
+        {
+            close(ofd[1]);
+            close(ofd[0]);
+        }
+    }
 
     if ((cmdr = parse_command(command)))
     {
