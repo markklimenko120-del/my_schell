@@ -134,7 +134,8 @@ shell_pipeline(struct cmd *cmd)
     int **fd = malloc(pipecmd->count_command * sizeof(int *));
     fd[0] = malloc(sizeof(int) * 2);
     shell_pipe(fd[0]);
-    // int i;
+    int i = 0;
+    int *ofd = fd[0];
     struct cmd *ecmd;
 
     if (shell_fork() == 0)
@@ -147,22 +148,43 @@ shell_pipeline(struct cmd *cmd)
     }
     pipecmd = pipecmd->next_command;
 
+    for (; pipecmd->next_command; i++, pipecmd = pipecmd->next_command)
+    {
+        ofd = fd[i+1];
+        ofd = malloc(sizeof(int) * 2);
+        shell_pipe(ofd);
+
+        if (shell_fork() == 0)
+        {
+            shell_pipe_child(ofd, fd[i]);
+            if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
+            {
+                shell_exec(ecmd);
+            }
+        }
+        close(fd[i][0]);
+        close(fd[i][1]);
+        free(fd[i]);
+    }
+
     if (shell_fork() == 0)
     {
-        shell_pipe_child(NULL, fd[0]);
+        shell_pipe_child(NULL, ofd);
         if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
         {
             shell_exec(ecmd);
         }
     }
 
-    close(fd[0][0]);
-    close(fd[0][1]);
-    free(fd[0]);
+    close(ofd[0]);
+    close(ofd[1]);
+    free(ofd);
     free(fd);
 
-    wait(0);
-    wait(0);
+    for (i += 2; i; i--)
+    {
+        wait(0);
+    }
 }
 
 void
