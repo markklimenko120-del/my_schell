@@ -46,44 +46,51 @@ parse_exec_cmd(struct cmd *cmd, char *s)
     return cmd;
 }
 
-void
-parse_semicolon_cmd(struct cmd *cmd, char *s)
-{
-    struct cmd *next_cmd;
-    struct semicolon_cmd *semcmd = (struct semicolon_cmd *)cmd;
-    
-    char *start = s;
-    char *semicolon;
 
-    if ((semicolon = peek(start, ';')))
+void
+parse_chain_cmd(struct cmd *cmd, char *s)
+{
+    char n;
+    char ch;
+    switch (cmd->type) 
     {
-        next_cmd = create_semicolon_cmd();
-        semcmd->command = start;
-        *semicolon = '\0';
-        start = semicolon + 1;
+        case SEMICOLON:
+        n = ';';
+        ch = '|';
+        break;
+
+        case PIPE:
+        n = '|';
+        ch = ';';
+        break;
+    }
+
+    struct cmd *next_cmd;
+    struct chain_cmd *chaincmd = (struct chain_cmd *)cmd;
+
+    char *start = s;
+    char *n_adress;
+    
+    if ((n_adress = peek(start, n)))
+    {
+        next_cmd = create_chain_cmd(cmd->type);
+        chaincmd->command = start;
+        *n_adress = '\0';
+        start = n_adress + 1;
         skip_spaces(&start);
-        parse_semicolon_cmd(next_cmd, start);
-        semcmd->next_command = (struct semicolon_cmd *)next_cmd;
+        parse_chain_cmd(next_cmd, start);
+        chaincmd->next_command = (struct chain_cmd *)next_cmd;
+        chaincmd->count_command += 1 + chaincmd->next_command->count_command;
     }
     else  
     {
-        semcmd->command = start;
-        semcmd->next_command = NULL; 
+        chaincmd->command = start;
+        if ((n_adress = peek(start, ch)))
+        {
+            *n_adress = '\0';
+        }
+        chaincmd->next_command = NULL; 
     }
-}
-
-void
-parse_pipeline_cmd(struct cmd *cmd, char *s)
-{
-    struct pipeline_cmd *pipecmd = (struct pipeline_cmd *)cmd;
-    char *left, *right;
-    char *pipe = peek(s, '|');
-    left = s;
-    right = pipe + 1;
-    *pipe = '\0';
-
-    pipecmd->left = left;
-    pipecmd->right = right;
 }
 
 char *
@@ -142,13 +149,14 @@ parse_command(char *buf)
 
         if (peek(buf, ';'))
         {
-            cmd = create_semicolon_cmd();
-            parse_semicolon_cmd(cmd, buf);
+            cmd = create_chain_cmd(SEMICOLON);
+            parse_chain_cmd(cmd, buf);
         }
 
         else if (peek(buf, '|'))
         {
-            cmd = create_pipeline_cmd();
+            cmd = create_chain_cmd(PIPE);
+            parse_chain_cmd(cmd, buf);
         }
 
         else if (check_built_in_commands(buf))

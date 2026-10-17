@@ -20,6 +20,15 @@ shell_fork(void)
     return pid;
 }
 
+void
+shell_pipe(int *fd)
+{
+    if (pipe(fd) < 0)
+    {
+        shell_exit(1, "pipe");
+    }
+}
+
 char *
 get_token(char **start_s)
 {
@@ -47,23 +56,12 @@ create_exec_cmd(void)
 }
 
 struct cmd *
-create_semicolon_cmd(void)
+create_chain_cmd(int type)
 {
-    struct semicolon_cmd *cmd;
+    struct chain_cmd *cmd;
     cmd = malloc(sizeof(*cmd));
     memset(cmd, 0, sizeof(*cmd));
-    cmd->type = SEMICOLON;
-
-    return (struct cmd *)cmd;
-}
-
-struct cmd *
-create_pipeline_cmd(void)
-{
-    struct pipeline_cmd *cmd;
-    cmd = malloc(sizeof(*cmd));
-    memset(cmd, 0, sizeof(*cmd));
-    cmd->type = PIPE;
+    cmd->type = type;
 
     return (struct cmd *)cmd;
 }

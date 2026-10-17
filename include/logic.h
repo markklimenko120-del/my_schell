@@ -20,24 +20,18 @@ struct exec_cmd
     char *args[MAXARGS];
 };
 
-struct semicolon_cmd
+struct chain_cmd /*List and Pipeline*/
 {
     int type;
     char *command;
-    struct semicolon_cmd *next_command;
-};
-
-struct pipeline_cmd
-{
-    int type;
-    char *left;
-    char *right;
+    int count_command;
+    struct chain_cmd *next_command;
 };
 
 int shell_fork(void);
+void shell_pipe(int *fd);
 struct cmd * create_exec_cmd(void);
-struct cmd * create_semicolon_cmd(void);
-struct cmd * create_pipeline_cmd(void);
+struct cmd * create_chain_cmd(int type); 
 char * get_token(char **start_s);
 
 #endif
