@@ -98,8 +98,8 @@ shell_pipeline(struct cmd *cmd)
 
     for (; pipecmd->next_command; i++, pipecmd = pipecmd->next_command)
     {
+        fd[i + 1] = malloc(sizeof(int) * 2);
         ofd = fd[i+1];
-        ofd = malloc(sizeof(int) * 2);
         shell_pipe(ofd);
 
         if (shell_fork() == 0)
@@ -123,7 +123,6 @@ shell_pipeline(struct cmd *cmd)
             shell_exec(ecmd);
         }
     }
-
     close(ofd[0]);
     close(ofd[1]);
     free(ofd);

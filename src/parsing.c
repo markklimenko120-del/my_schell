@@ -51,14 +51,17 @@ void
 parse_chain_cmd(struct cmd *cmd, char *s)
 {
     char n;
+    char ch;
     switch (cmd->type) 
     {
         case SEMICOLON:
         n = ';';
+        ch = '|';
         break;
 
         case PIPE:
         n = '|';
+        ch = ';';
         break;
     }
 
@@ -82,9 +85,12 @@ parse_chain_cmd(struct cmd *cmd, char *s)
     else  
     {
         chaincmd->command = start;
+        if ((n_adress = peek(start, ch)))
+        {
+            *n_adress = '\0';
+        }
         chaincmd->next_command = NULL; 
     }
-
 }
 
 char *
