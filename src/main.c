@@ -12,7 +12,7 @@
 void shell_exec(struct cmd *cmd) __attribute__((noreturn));
 void shell_semicolon(struct cmd *cmd);
 void shell_pipeline(struct cmd *cmd);
-void shell_pipe_child(int fd[2], int ofd[2], char *command);
+void shell_pipe_child(int fd[2], int ofd[2]);
 
 void
 runcmd(char *s)
@@ -134,16 +134,26 @@ shell_pipeline(struct cmd *cmd)
     int **fd = malloc(pipecmd->count_command * sizeof(int *));
     fd[0] = malloc(sizeof(int) * 2);
     shell_pipe(fd[0]);
+    // int i;
+    struct cmd *ecmd;
 
     if (shell_fork() == 0)
     {
-        shell_pipe_child(fd[0], NULL, pipecmd->command);
+        shell_pipe_child(fd[0], NULL);
+        if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
+        {
+            shell_exec(ecmd);
+        }
     }
     pipecmd = pipecmd->next_command;
 
     if (shell_fork() == 0)
     {
-        shell_pipe_child(NULL, fd[0], pipecmd->command);
+        shell_pipe_child(NULL, fd[0]);
+        if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
+        {
+            shell_exec(ecmd);
+        }
     }
 
     close(fd[0][0]);
@@ -156,9 +166,8 @@ shell_pipeline(struct cmd *cmd)
 }
 
 void
-shell_pipe_child(int fd[2], int ofd[2], char *command)
+shell_pipe_child(int fd[2], int ofd[2])
 {
-    struct cmd *cmdr;
     if (fd)
     {
         if (fd[1] != 1)
@@ -182,12 +191,6 @@ shell_pipe_child(int fd[2], int ofd[2], char *command)
             close(ofd[0]);
         }
     }
-
-    if ((cmdr = parse_command(command)))
-    {
-        shell_exec(cmdr);
-    }
-
 }
 #endif
 
