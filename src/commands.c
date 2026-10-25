@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "config.h"
 
 void
 shell_cd(char *s)
@@ -28,7 +29,7 @@ shell_exit(int n, const char *error)
 void 
 shell_pwd(void)
 {
-    char buf[50];
+    char buf[PWD_BUFF];
     size_t nbuf = sizeof(buf);
     memset(buf, 0, nbuf);
     getcwd(buf, nbuf);

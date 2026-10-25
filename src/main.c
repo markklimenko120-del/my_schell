@@ -8,6 +8,7 @@
 #include "parsing.h"
 #include "logic.h"
 #include "commands.h"
+#include "config.h"
 
 void shell_exec(struct cmd *cmd) __attribute__((noreturn));
 void shell_semicolon(struct cmd *cmd);
@@ -165,7 +166,7 @@ shell_pipe_child(int fd[2], int ofd[2])
 int 
 main(void)
 {
-    char buf[100];
+    char buf[PROMPT_BUFF];
     size_t nbuf = sizeof(buf);
 
     while (get_prompt(buf, nbuf) >= 0)
