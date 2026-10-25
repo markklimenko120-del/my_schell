@@ -26,9 +26,9 @@ shell_exit(int n, const char *error)
 }
 
 void 
-shell_pwd(void)
+shell_pwd(int buff)
 {
-    char buf[50];
+    char *buf = malloc(sizeof(char) * buff);
     size_t nbuf = sizeof(buf);
     memset(buf, 0, nbuf);
     getcwd(buf, nbuf);

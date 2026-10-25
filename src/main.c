@@ -8,20 +8,21 @@
 #include "parsing.h"
 #include "logic.h"
 #include "commands.h"
+#include "config_pars.h"
 
 void shell_exec(struct cmd *cmd) __attribute__((noreturn));
-void shell_semicolon(struct cmd *cmd);
-void shell_pipeline(struct cmd *cmd);
+void shell_semicolon(struct cmd *cmd, config *cfg);
+void shell_pipeline(struct cmd *cmd, config *cfg);
 void shell_pipe_child(int fd[2], int ofd[2]);
 
 void
-runcmd(char *s)
+runcmd(char *s, config *cfg)
 {
     struct cmd *cmd;
     pid_t cpid;
     int status;
 
-    if ((cmd = parse_command(s)) == BUILT_IN)
+    if ((cmd = parse_command(s, cfg)) == BUILT_IN)
     {
         return;
     }
@@ -31,11 +32,11 @@ runcmd(char *s)
         switch (cmd->type)
         {
             case SEMICOLON:
-                shell_semicolon(cmd);
+                shell_semicolon(cmd, cfg);
                 break;
         
             case PIPE:
-                shell_pipeline(cmd);
+                shell_pipeline(cmd, cfg);
                 break;
 
             case EXEC:
@@ -65,18 +66,18 @@ shell_exec(struct cmd *cmd)
 }
 
 void 
-shell_semicolon(struct cmd *cmd)
+shell_semicolon(struct cmd *cmd, config *cfg)
 {
     struct chain_cmd *semcmd = (struct chain_cmd *)cmd;
 
     for ( ; semcmd; semcmd = semcmd->next_command)
     {
-        runcmd(semcmd->command);
+        runcmd(semcmd->command, cfg);
     }
 }
 
 void
-shell_pipeline(struct cmd *cmd)
+shell_pipeline(struct cmd *cmd, config *cfg)
 {
     struct chain_cmd *pipecmd = (struct chain_cmd *)cmd;
     int **fd = malloc(pipecmd->count_command * sizeof(int *));
@@ -89,7 +90,7 @@ shell_pipeline(struct cmd *cmd)
     if (shell_fork() == 0)
     {
         shell_pipe_child(fd[0], NULL);
-        if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
+        if ((ecmd = parse_command(pipecmd->command, cfg)) != BUILT_IN)
         {
             shell_exec(ecmd);
         }
@@ -105,7 +106,7 @@ shell_pipeline(struct cmd *cmd)
         if (shell_fork() == 0)
         {
             shell_pipe_child(ofd, fd[i]);
-            if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
+            if ((ecmd = parse_command(pipecmd->command, cfg)) != BUILT_IN)
             {
                 shell_exec(ecmd);
             }
@@ -118,7 +119,7 @@ shell_pipeline(struct cmd *cmd)
     if (shell_fork() == 0)
     {
         shell_pipe_child(NULL, ofd);
-        if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
+        if ((ecmd = parse_command(pipecmd->command, cfg)) != BUILT_IN)
         {
             shell_exec(ecmd);
         }
@@ -165,7 +166,10 @@ shell_pipe_child(int fd[2], int ofd[2])
 int 
 main(void)
 {
-    char buf[100];
+    config *cfg = malloc(sizeof(config));
+    search_config(cfg);
+
+    char *buf = malloc(sizeof(char) * cfg->prompt_buff);
     size_t nbuf = sizeof(buf);
 
     while (get_prompt(buf, nbuf) >= 0)
@@ -179,7 +183,7 @@ main(void)
 
         else if (*c != 0)
         {
-            runcmd(c);
+            runcmd(c, cfg);
         }
     }
     return 0;

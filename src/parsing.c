@@ -6,6 +6,7 @@
 #include <strings.h>
 #include "logic.h"
 #include "commands.h"
+#include "config_pars.h"
 
 char * peek(const char *s, int c);
 void skip_spaces(char **cmd);
@@ -105,7 +106,7 @@ peek(const char *s, int c)
 }
 
 int
-check_built_in_commands(char *cmd)
+check_built_in_commands(char *cmd, config *cfg)
 {
     if (cmd[0] == 'e' && cmd[1] == 'x' && cmd[2] == 'i' && cmd[3] == 't' && (cmd[4] == ' ' || cmd[4] == '\n' || cmd[4] == '\0')) 
     {
@@ -124,7 +125,7 @@ check_built_in_commands(char *cmd)
 
     else if (cmd[0] == 'p' && cmd[1] == 'w' && cmd[2] == 'd' && (cmd[3] == ' ' || cmd[3] == '\n' || cmd[3] == '\0'))
     {
-        shell_pwd();
+        shell_pwd(cfg->pwd_buff);
         return 1;
     }
 
@@ -141,7 +142,7 @@ skip_spaces(char **cmd)
 }
 
 struct cmd *
-parse_command(char *buf)
+parse_command(char *buf, config *cfg)
 {
     struct cmd *cmd;
     skip_spaces(&buf);
@@ -159,7 +160,7 @@ parse_command(char *buf)
             parse_chain_cmd(cmd, buf);
         }
 
-        else if (check_built_in_commands(buf))
+        else if (check_built_in_commands(buf, cfg))
         {
             return BUILT_IN; 
         }
