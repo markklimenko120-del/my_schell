@@ -65,3 +65,14 @@ create_chain_cmd(int type)
 
     return (struct cmd *)cmd;
 }
+
+struct cmd *
+create_redir_cmd(void)
+{
+    struct redir_cmd *cmd;
+    cmd = malloc(sizeof(*cmd));
+    memset(cmd, 0, sizeof(*cmd));
+    cmd->type = REDIR;
+
+    return (struct cmd *)cmd;
+}
