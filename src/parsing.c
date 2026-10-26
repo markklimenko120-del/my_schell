@@ -4,8 +4,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <strings.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include "logic.h"
 #include "commands.h"
 
@@ -108,7 +106,10 @@ parse_redir_cmd(struct cmd *cmd, char *s)
     {
         redcmd->command = s;
         target = redir + 1;
+        skip_spaces(&target);
+
         *redir = '\0';
+        target = get_token(&target);
 
         redcmd->dest = target;
         redcmd->fd = 1;
@@ -118,7 +119,10 @@ parse_redir_cmd(struct cmd *cmd, char *s)
     {
         redcmd->command = s;
         target = redir + 1;
+        skip_spaces(&target);
+
         *redir = '\0';
+        target = get_token(&target);
 
         redcmd->dest = target;
         redcmd->fd = 0;
@@ -191,14 +195,15 @@ parse_command(char *buf)
             parse_chain_cmd(cmd, buf);
         }
 
-        else if (check_built_in_commands(buf))
-        {
-            return BUILT_IN; 
-        }
-
         else if (peek(buf, '>') || peek(buf, '<'))
         {
             cmd = create_redir_cmd();
+            parse_redir_cmd(cmd, buf);
+        }
+
+        else if (check_built_in_commands(buf))
+        {
+            return BUILT_IN; 
         }
 
         else 
