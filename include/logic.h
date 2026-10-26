@@ -35,12 +35,13 @@ struct redir_cmd
     char *command;
     char *dest;
     int fd;
-}
+};
 
 int shell_fork(void);
 void shell_pipe(int *fd);
 struct cmd * create_exec_cmd(void);
 struct cmd * create_chain_cmd(int type); 
+struct cmd * create_redir_cmd(void);
 char * get_token(char **start_s);
 
 #endif
