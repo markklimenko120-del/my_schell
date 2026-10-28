@@ -80,7 +80,6 @@ shell_semicolon(struct cmd *cmd)
 
     for ( ; semcmd; semcmd = semcmd->next_command)
     {
-        printf("SEM CMD: %s\n", semcmd->command);
         runcmd(semcmd->command);
     }
 }
@@ -94,15 +93,11 @@ shell_pipeline(struct cmd *cmd)
     shell_pipe(fd[0]);
     int i = 0;
     int *ofd = fd[0];
-    struct cmd *ecmd;
 
     if (shell_fork() == 0)
     {
         shell_pipe_child(fd[0], NULL);
-        if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
-        {
-            shell_exec(ecmd);
-        }
+        runcmd(pipecmd->command);
         shell_exit(0, NULL);
     }
     pipecmd = pipecmd->next_command;
@@ -116,10 +111,7 @@ shell_pipeline(struct cmd *cmd)
         if (shell_fork() == 0)
         {
             shell_pipe_child(ofd, fd[i]);
-            if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
-            {
-                shell_exec(ecmd);
-            }
+            runcmd(pipecmd->command);
             shell_exit(0, NULL);
         }
         close(fd[i][0]);
@@ -130,10 +122,7 @@ shell_pipeline(struct cmd *cmd)
     if (shell_fork() == 0)
     {
         shell_pipe_child(NULL, ofd);
-        if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
-        {
-            shell_exec(ecmd);
-        }
+        runcmd(pipecmd->command);
         shell_exit(0, NULL);
     }
     close(ofd[0]);
@@ -150,8 +139,6 @@ shell_pipeline(struct cmd *cmd)
 void 
 shell_redirection(struct cmd *cmd)
 {
-    struct cmd *ecmd;
-
     struct redir_cmd *redcmd;
     redcmd = (struct redir_cmd *)cmd;
 
@@ -161,10 +148,7 @@ shell_redirection(struct cmd *cmd)
             if (shell_fork() == 0)
             {
                 shell_redir(redcmd->dest, 0);
-                if ((ecmd = parse_command(redcmd->command)) != BUILT_IN)
-                {
-                    shell_exec(ecmd);
-                }
+                runcmd(redcmd->command);
                 shell_exit(0, NULL);
             }
             break;
@@ -173,10 +157,7 @@ shell_redirection(struct cmd *cmd)
             if (shell_fork() == 0)
             {
                 shell_redir(redcmd->dest, 1);
-                if ((ecmd = parse_command(redcmd->command)) != BUILT_IN)
-                {
-                    shell_exec(ecmd);
-                }
+                runcmd(redcmd->command);
                 shell_exit(0, NULL);
             }
     }

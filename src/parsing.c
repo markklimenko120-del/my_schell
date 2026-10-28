@@ -89,6 +89,7 @@ parse_chain_cmd(struct cmd *cmd, char *s)
         {
             *n_adress = '\0';
         }
+
         chaincmd->next_command = NULL; 
     }
 }
