@@ -30,7 +30,7 @@ parse_exec_cmd(struct cmd *cmd, char *s)
     char *s_stop = s + strlen(s);
     char *token;
 
-    for (i = 0; s < s_stop; i++)
+    for (i = 0; s <= s_stop; i++)
     {
         if (*(token = get_token(&s)) != 0)
         {

@@ -1,4 +1,5 @@
 #include <endian.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -36,10 +37,14 @@ get_token(char **start_s)
     s = *start_s;
     char *ret;
 
-    for (; !isspace(*s); s++) {}
+    for (; !isspace(*s) && *s != '\0'; s++) {}
 
     *s = '\0';
     ret = *start_s;
+    if (*ret == '\0')
+    {
+        ret++;
+    }
     *start_s = s + 1;
     return ret;
 }

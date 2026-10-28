@@ -65,7 +65,7 @@ shell_exec(struct cmd *cmd)
     struct exec_cmd *execcmd;
 
     execcmd = (struct exec_cmd *)cmd;
-    if (execcmd->args[0] == 0 && execcmd->args[0][0] != '\0')
+    if (execcmd->args[0] == 0 && execcmd->args[0][0] == '\0')
     {
         shell_exit(1, "exec");
     }
