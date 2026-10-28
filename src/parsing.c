@@ -89,7 +89,44 @@ parse_chain_cmd(struct cmd *cmd, char *s)
         {
             *n_adress = '\0';
         }
+
         chaincmd->next_command = NULL; 
+    }
+}
+
+void  
+parse_redir_cmd(struct cmd *cmd, char *s)
+{
+    struct redir_cmd *redcmd;
+    redcmd = (struct redir_cmd *)cmd;
+
+    char *redir;
+    char *target;
+
+    if ((redir = peek(s, '>')))
+    {
+        redcmd->command = s;
+        target = redir + 1;
+        skip_spaces(&target);
+
+        *redir = '\0';
+        target = get_token(&target);
+
+        redcmd->dest = target;
+        redcmd->fd = 1;
+    }
+    
+    else if ((redir = peek(s, '<')))
+    {
+        redcmd->command = s;
+        target = redir + 1;
+        skip_spaces(&target);
+
+        *redir = '\0';
+        target = get_token(&target);
+
+        redcmd->dest = target;
+        redcmd->fd = 0;
     }
 }
 
@@ -157,6 +194,12 @@ parse_command(char *buf)
         {
             cmd = create_chain_cmd(PIPE);
             parse_chain_cmd(cmd, buf);
+        }
+
+        else if (peek(buf, '>') || peek(buf, '<'))
+        {
+            cmd = create_redir_cmd();
+            parse_redir_cmd(cmd, buf);
         }
 
         else if (check_built_in_commands(buf))

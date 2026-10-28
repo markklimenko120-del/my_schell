@@ -6,6 +6,7 @@ enum commands {
     EXEC = 1,
     SEMICOLON = 2,
     PIPE = 3,
+    REDIR = 4,
 };
 
 enum { MAXARGS = 10 };
@@ -28,10 +29,19 @@ struct chain_cmd /*List and Pipeline*/
     struct chain_cmd *next_command;
 };
 
+struct redir_cmd 
+{
+    int type;
+    char *command;
+    char *dest;
+    int fd;
+};
+
 int shell_fork(void);
 void shell_pipe(int *fd);
 struct cmd * create_exec_cmd(void);
 struct cmd * create_chain_cmd(int type); 
+struct cmd * create_redir_cmd(void);
 char * get_token(char **start_s);
 
 #endif

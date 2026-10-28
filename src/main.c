@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "parsing.h"
 #include "logic.h"
 #include "commands.h"
@@ -14,6 +16,8 @@ void shell_exec(struct cmd *cmd) __attribute__((noreturn));
 void shell_semicolon(struct cmd *cmd);
 void shell_pipeline(struct cmd *cmd);
 void shell_pipe_child(int fd[2], int ofd[2]);
+void shell_redirection(struct cmd *cmd);
+void shell_redir(const char *target, int old_fd);
 
 void
 runcmd(char *s)
@@ -37,6 +41,10 @@ runcmd(char *s)
         
             case PIPE:
                 shell_pipeline(cmd);
+                break;
+            
+            case REDIR:
+                shell_redirection(cmd);
                 break;
 
             case EXEC:
@@ -85,15 +93,12 @@ shell_pipeline(struct cmd *cmd)
     shell_pipe(fd[0]);
     int i = 0;
     int *ofd = fd[0];
-    struct cmd *ecmd;
 
     if (shell_fork() == 0)
     {
         shell_pipe_child(fd[0], NULL);
-        if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
-        {
-            shell_exec(ecmd);
-        }
+        runcmd(pipecmd->command);
+        shell_exit(0, NULL);
     }
     pipecmd = pipecmd->next_command;
 
@@ -106,10 +111,8 @@ shell_pipeline(struct cmd *cmd)
         if (shell_fork() == 0)
         {
             shell_pipe_child(ofd, fd[i]);
-            if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
-            {
-                shell_exec(ecmd);
-            }
+            runcmd(pipecmd->command);
+            shell_exit(0, NULL);
         }
         close(fd[i][0]);
         close(fd[i][1]);
@@ -119,10 +122,8 @@ shell_pipeline(struct cmd *cmd)
     if (shell_fork() == 0)
     {
         shell_pipe_child(NULL, ofd);
-        if ((ecmd = parse_command(pipecmd->command)) != BUILT_IN)
-        {
-            shell_exec(ecmd);
-        }
+        runcmd(pipecmd->command);
+        shell_exit(0, NULL);
     }
     close(ofd[0]);
     close(ofd[1]);
@@ -134,6 +135,53 @@ shell_pipeline(struct cmd *cmd)
         wait(0);
     }
 }
+
+void 
+shell_redirection(struct cmd *cmd)
+{
+    struct redir_cmd *redcmd;
+    redcmd = (struct redir_cmd *)cmd;
+
+    switch (redcmd->fd) 
+    {
+        case 0:
+            if (shell_fork() == 0)
+            {
+                shell_redir(redcmd->dest, 0);
+                runcmd(redcmd->command);
+                shell_exit(0, NULL);
+            }
+            break;
+
+        case 1:
+            if (shell_fork() == 0)
+            {
+                shell_redir(redcmd->dest, 1);
+                runcmd(redcmd->command);
+                shell_exit(0, NULL);
+            }
+    }
+    wait(0);
+}
+
+void
+shell_redir(const char *target, int old_fd)
+{
+    int new_fd; 
+    if (old_fd)
+    {
+        new_fd = open(target, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    }
+    else  
+    {
+        new_fd = open(target, O_RDONLY);
+    }
+
+    dup2(new_fd, old_fd);
+    close(new_fd); 
+}
+
+
 
 void
 shell_pipe_child(int fd[2], int ofd[2])
